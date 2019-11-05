@@ -4,6 +4,10 @@ Rails.application.routes.draw do
   ## traveler.com/api/v1/resource
   namespace :api do
     namespace :v1 do
+      resources :visits
+      resources :trips
+      resources :comments
+      resources :attractions
       resources :locations
       resources :users
     end
