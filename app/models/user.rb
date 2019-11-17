@@ -10,5 +10,8 @@ class User < ApplicationRecord
   # these are generating methods for us that
   ## active record will use to build
   ## quearies to our database searching for
-  ## things that are associated by their foreign key 
+  ## things that are associated by their foreign key
+
+  validates :name, :username, :hometown, presence: true
+  validates :username, uniqueness: true
 end

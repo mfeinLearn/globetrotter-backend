@@ -3,9 +3,17 @@ class Api::V1::TripsController < ApplicationController
 
   # GET /trips
   def index
-    @trips = Trip.all
+    # is there an incoming user id
+    # but does that matter? do we always want just the current user's trips?
+    if logged_in?
+      @trips = current_user.trips
 
-    render json: @trips
+      render json: TripSerializer.new(@trips)
+    else
+      render json: {
+        error: "You must be logged in to see trips"
+      }
+    end
   end
 
   # GET /trips/1
@@ -15,21 +23,28 @@ class Api::V1::TripsController < ApplicationController
 
   # POST /trips
   def create
-    @trip = Trip.new(trip_params)
+    #byebug
+    @trip = current_user.trips.build(trip_params)
 
     if @trip.save
-      render json: @trip, status: :created, location: @trip
+      render json: TripSerializer.new(@trip), status: :created
     else
-      render json: @trip.errors, status: :unprocessable_entity
+      error_resp = {
+        error: @trip.errors.full_messages.to_sentence
+      }
+      render json: error_resp, status: :unprocessable_entity
     end
   end
 
   # PATCH/PUT /trips/1
   def update
     if @trip.update(trip_params)
-      render json: @trip
+      render json: TripSerializer.new(@trip), status: :ok
     else
-      render json: @trip.errors, status: :unprocessable_entity
+      error_resp = {
+        error: @trip.errors.full_messages.to_sentence
+      }
+      render json: error_resp, status: :unprocessable_entity
     end
   end
 
@@ -46,6 +61,6 @@ class Api::V1::TripsController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def trip_params
-      params.require(:trip).permit(:start_date, :end_date, :location_id, :user_id)
+      params.require(:trip).permit(:start_date, :end_date, :name)
     end
 end
